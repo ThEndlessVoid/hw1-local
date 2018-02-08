@@ -12,8 +12,9 @@
 #endif
 
 /* Your function must have the following signature: */
-//extern const char* dgemm_desc;
-//extern void square_dgemm (int, double*, double*, double*);
+extern const char* dgemm_desc;
+extern void square_dgemm (int, double*, double*, double*);
+extern void square_dgemm_naive (int, double*, double*, double*);
 #define MAX_SPEED 42.9  // defining Bridges Max Gflops/s per core with peak TurboBoost Frequency
 
 
@@ -61,9 +62,10 @@ int main() {
     buf = (double*) malloc (3 * nmax * nmax * sizeof(double));
     if (buf == NULL) die ("failed to allocate largest problem size");
     
-    double Mflops_s[nsizes],per[nsizes],aveper,grade;
     
     /* For each test size */
+    double start_time, time, naive_time, delta;
+    int iterations = 10;
     for (int isize = 0; isize < nsizes; ++isize)
     {
         int n = test_sizes[isize];
@@ -74,63 +76,25 @@ int main() {
         fill (A, n*n);
         fill (B, n*n);
         fill (C, n*n);
-        double Gflops_s, seconds = -1.0;
-        double timeout = 0.1; // "sufficiently long" := at least 1/10 second.
-        for (int n_iterations = 1; seconds < timeout; n_iterations *= 2)
-        {
-            /* Warm-up */
-            // square_dgemm (n, A, B, C);
-            
-            /* Benchmark n_iterations runs of square_dgemm */
-            seconds = -wall_time();
-            //for (int it = 0; it < n_iterations; ++it)
-                //square_dgemm (n, A, B, C);
-            seconds += wall_time();
-            
-            /*  compute Gflop/s rate */
-            Gflops_s = 2.e-9 * n_iterations * n * n * n / seconds;
+        for(int i = 0; i < iterations; i++){
+            start_time = wall_time();
+            square_dgemm_naive(n, A, B, C);
+            naive_time = wall_time() - start_time;
         }
+        naive_time = naive_time / iterations;
+       
         
-        /* Storing Mflop rate and calculating percentage of peak */
-        Mflops_s[isize] = Gflops_s*1000;
-        per[isize] = Gflops_s*100/MAX_SPEED;
+        for(int i = 0; i < iterations; i++){
+            start_time = wall_time();
+            square_dgemm (n, A, B, C);
+            time = wall_time() - start_time;
+        }
+        time = time / iterations;
         
-        printf ("Size: %d\tMflop/s: %8g\tPercentage:%6.2lf\n", n, Mflops_s[isize],per[isize]);
-        
-
-        memset (C, 0, n * n * sizeof(double));
-        // square_dgemm (n, A, B, C);
-        
-
-        /* A := |A|, B := |B|, C := |C| */
-        absolute_value (A, n * n);
-        absolute_value (B, n * n);
-        absolute_value (C, n * n);
-        
-
-        /* If any element in C is positive, then something went wrong in square_dgemm */
-        for (int i = 0; i < n * n; ++i)
-            if (C[i] > 0)
-                die("*** FAILURE *** Error in matrix multiply exceeds componentwise error bounds.\n" );
+        delta = ((time - naive_time) / naive_time) * -100;
+        printf ("Blocked: %f, Naive: %f, Delta: %f  Size: %i  \n", time, naive_time , delta, n);
     }
     
-    /* Calculating average percentage of peak reached by algorithm */
-    aveper=0;
-    for (int i=0; i<nsizes;i++)
-        aveper+= per[i];
-    aveper/=nsizes*1.0;
-    
-    /* Assigning grade based on average percentage reached (50% gets 75; 80% gets 100; rest distributed proportionally) */
-    if (aveper > 80) grade = 100.0;
-    else if (aveper > 50) grade = (aveper-50)*0.25*100.0/30.0 + 75.0;
-    else
-        grade = aveper * 2 * 0.75;
-    
-    /* Printing average percentage and grade to screen */
-    printf("Average percentage of Peak = %g\nGrade = %g\n",aveper,grade);
-    
     free (buf);
-    
-    
     return 0;
 }

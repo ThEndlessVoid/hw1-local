@@ -1,3 +1,6 @@
-add_library (matmul dgemm-naive.c)
+add_library (matmul dgemm-blocked.c)
+add_library (matmul-naive dgemm-naive.c)
 
-target_link_libraries (matmul LINK_PUBLIC HW1)
+
+target_include_directories (matmul PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories (matmul-naive PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
