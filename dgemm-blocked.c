@@ -1,4 +1,4 @@
-#include <emmintrin.h>
+#include "emmintrin.h"
 /*
     Please include compiler name below (you may also include any other modules you would like to be loaded)
 
@@ -20,7 +20,6 @@ const char* dgemm_desc = "Simple blocked dgemm.";
 #if !defined(BLOCK_SIZE)
 #define BLOCK_SIZE 64
 #endif
-#import "emmintrin.h"
 
 #define min(a,b) (((a)<(b))?(a):(b))
 
@@ -100,7 +99,7 @@ void do_block_fast (int lda, int M, int N, int K, double* A, double* B, double* 
 
                 vecCtmp = _mm_add_pd(vecC1, vecC2);
                 _mm_storeu_pd(&temp[0], vecCtmp);
-                
+
                 cij += temp[0];
                 cij += temp[1];
             }
