@@ -55,9 +55,10 @@ void do_block_fast (int lda, int M, int N, int K, double* A, double* B, double* 
         {
 /* Compute C(i,j) */
             double cij = C[i+j*lda];
-            for (int k = 0; k < K; k++){
+
+            for (int k = 0; k < K; k+=2){
                 cij += a[i+k*BLOCK_SIZE] * B[k+j*lda];
-//                cij += a[i+(k+1)*BLOCK_SIZE] * B[(k+1)+j*lda];
+                cij += a[i+(k+1)*BLOCK_SIZE] * B[(k+1)+j*lda];
             }
             C[i+j*lda] = cij;
         }
@@ -81,6 +82,12 @@ void square_dgemm (int lda, double* A, double* B, double* C)
 	int K = min (BLOCK_SIZE, lda-k);
 
 	/* Perform individual block dgemm */
-	do_block_fast(lda, M, N, K, A + i + k*lda, B + k + j*lda, C + i + j*lda);
+          if((M % BLOCK_SIZE == 0) && (N % BLOCK_SIZE == 0) && (K % BLOCK_SIZE == 0))
+          {
+              do_block_fast(lda, M, N, K, A + i + k*lda, B + k + j*lda, C + i + j*lda);
+          }else{
+              do_block(lda, M, N, K, A + i + k*lda, B + k + j*lda, C + i + j*lda);
+          }
+
       }
 }
