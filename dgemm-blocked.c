@@ -80,6 +80,6 @@ void square_dgemm (int lda, double* A, double* B, double* C)
 	int K = min (BLOCK_SIZE, lda-k);
 
 	/* Perform individual block dgemm */
-	do_block-fast(lda, M, N, K, A + i + k*lda, B + k + j*lda, C + i + j*lda);
+	do_block_fast(lda, M, N, K, A + i + k*lda, B + k + j*lda, C + i + j*lda);
       }
 }
