@@ -68,7 +68,7 @@ void do_block_fast (int lda, int M, int N, int K, double* A, double* B, double* 
         {
 /* Compute C(i,j) */
             double cij = C[i+j*lda];
-            for (int k = 0; k < K; k+=2){
+            for (int k = 0; k < K; k+=4){
                 //vecB _mm_load_pd (&B[k+j*lda]);
 //                a1 = a[i+k*BLOCK_SIZE];
 //                a2 = a[i+(k+1)*BLOCK_SIZE];
@@ -89,18 +89,14 @@ void do_block_fast (int lda, int M, int N, int K, double* A, double* B, double* 
 //                cij += c2;
 //                cij += c3;
 //                cij += c4;
-                vecA1 = _mm_load_pd (&a[ik*BLOCK_SIZE]);
+                vecA1 = _mm_load_pd (&a[k+i*BLOCK_SIZE]);
                 vecA2 = _mm_load_pd (&a[(k+2)+i*BLOCK_SIZE]);
-
                 vecB1 = _mm_loadu_pd (&B[k+j*lda]);
                 vecB2 = _mm_loadu_pd (&B[(k+2)+j*lda]);
-
                 vecC1 = _mm_mul_pd(vecA1, vecB1);
                 vecC2 = _mm_mul_pd(vecA2, vecB2);
-
                 vecCtmp = _mm_add_pd(vecC1, vecC2);
                 _mm_storeu_pd(&temp[0], vecCtmp);
-
                 cij += temp[0];
                 cij += temp[1];
             }
