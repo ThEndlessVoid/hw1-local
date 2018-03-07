@@ -16,7 +16,7 @@ LDLIBS = -lrt -Wl,--start-group $(MKLROOT)/lib/intel64/libmkl_intel_lp64.a $(MKL
 const char* dgemm_desc = "Simple blocked dgemm.";
 
 #if !defined(BLOCK_SIZE)
-#define BLOCK_SIZE 41
+#define BLOCK_SIZE 64
 #endif
 
 #define min(a,b) (((a)<(b))?(a):(b))
@@ -39,6 +39,28 @@ static void do_block (int lda, int M, int N, int K, double* A, double* B, double
     }
 }
 
+void do_block_fast (int lda, int M, int N, int K, double* A, double* B, double* C)
+{
+    static double a[BLOCK_SIZE*BLOCK_SIZE] __attribute__ ((aligned (16)));
+//
+//    make a local aligned copy of A's block
+    for( int j = 0; j < K; j++ )
+        for( int i = 0; i < M; i++ )
+            a[i+j*BLOCK_SIZE] = A[i+j*lda];
+
+/* For each row i of A */
+    for (int i = 0; i < M; ++i)
+/* For each column j of B */
+        for (int j = 0; j < N; ++j)
+        {
+/* Compute C(i,j) */
+            double cij = C[i+j*lda];
+            for (int k = 0; k < K; ++k){
+                cij += a[i+k*BLOCK_SIZE] * B[k+j*lda];
+            }
+            C[i+j*lda] = cij;
+        }
+}
 /* This routine performs a dgemm operation
  *  C := C + A * B
  * where A, B, and C are lda-by-lda matrices stored in column-major format. 
@@ -58,6 +80,6 @@ void square_dgemm (int lda, double* A, double* B, double* C)
 	int K = min (BLOCK_SIZE, lda-k);
 
 	/* Perform individual block dgemm */
-	do_block(lda, M, N, K, A + i + k*lda, B + k + j*lda, C + i + j*lda);
+	do_block-fast(lda, M, N, K, A + i + k*lda, B + k + j*lda, C + i + j*lda);
       }
 }
