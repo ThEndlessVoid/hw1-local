@@ -1,4 +1,4 @@
-#include <emmintrin.h>
+
 
 /*
  Please include compiler name below (you may also include any other modules you would like to be loaded)
@@ -14,7 +14,7 @@
  LDLIBS = -lrt -Wl,--start-group $(MKLROOT)/lib/intel64/libmkl_intel_lp64.a $(MKLROOT)/lib/intel64/libmkl_sequential.a $(MKLROOT)/lib/intel64/libmkl_core.a -Wl,--end-group -lpthread -lm
 
  */
-
+#include <emmintrin.h>
 const char* dgemm_desc = "Simple blocked dgemm.";
 #if !defined(BLOCK_SIZE)
 #define BLOCK_SIZE 64
@@ -44,7 +44,7 @@ void do_block_fast (int lda, int M, int N, int K, double* A, double* B, double* 
 {
     static double a[BLOCK_SIZE*BLOCK_SIZE] __attribute__ ((aligned (16)));
 //    static double a1, a2, a3, a4, b1, b2, b3, b4, c1, c2, c3, c4;
-    static double temp[4] __attribute__ ((aligned (16)));
+    static double temp[2] __attribute__ ((aligned (16))) = {0, 0};
     __m128d vecA1;
     __m128d vecB1;
     __m128d vecC1;
@@ -77,7 +77,7 @@ void do_block_fast (int lda, int M, int N, int K, double* A, double* B, double* 
 //                _mm_storeu_pd(&temp[0], vecCtmp);
                 _mm_storeu_pd(&temp[0], vecC1);
                 cij += temp[0];
-//                cij += temp[1];
+                cij += temp[1];
             }
             C[i+j*lda] = cij;
         }
