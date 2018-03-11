@@ -15,6 +15,8 @@
 
  */
 #include <emmintrin.h>
+#include "immintrin.h"
+
 const char* dgemm_desc = "Simple blocked dgemm.";
 #if !defined(BLOCK_SIZE)
 #define BLOCK_SIZE 64
@@ -46,7 +48,6 @@ void do_block_fast (int lda, int M, int N, int K, double* A, double* B, double* 
     static double a[BLOCK_SIZE*BLOCK_SIZE] __attribute__ ((aligned (16)));
     static double a1, a2, a3, a4, b1, b2, b3, b4, c1, c2, c3, c4;
     static double temp[4] __attribute__ ((aligned (16))) = {0, 0, 0, 0};
-//    __m256d vec1A;
 //    __m256d vec1B;
 //    __m256d vec1C;
 //    __m256d vec2A;
@@ -101,6 +102,8 @@ void do_block_fast (int lda, int M, int N, int K, double* A, double* B, double* 
 //
 //                cijD += a[(i+1)+k*BLOCK_SIZE] * B[k+(j+1)*lda];
 //                cijD += a[(i+1)+(k+1)*BLOCK_SIZE] * B[(k+1)+(j+1)*lda];
+                __m256d vec1A =_mm256_load_pd (&a[k+i*BLOCK_SIZE]);
+
 
                 vecA1 = _mm_load_pd (&a[k+i*BLOCK_SIZE]);
                 vecA2 = _mm_load_pd (&a[(k+2)+i*BLOCK_SIZE]);
