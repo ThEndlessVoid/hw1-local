@@ -90,8 +90,8 @@ void do_block_fast (int lda, int M, int N, int K, double* A, double* B, double* 
 
 
             for (int k = 0; k < K; k+=2){
-                cij += A[i+k*lda] * B[k+j*lda];
-                cij += A[i+1+k+1*lda] * B[k+1+j+1*lda];
+//                cij += A[i+k*lda] * B[k+j*lda];
+//                cij += A[i+1+k+1*lda] * B[k+1+j+1*lda];
 
                 cijA += a[i+k*BLOCK_SIZE] * B[k+j*lda];
                 cijA += a[i+(k+1)*BLOCK_SIZE] * B[(k+1)+j*lda];
