@@ -19,7 +19,7 @@
 
 const char* dgemm_desc = "Simple blocked dgemm.";
 #if !defined(BLOCK_SIZE)
-#define BLOCK_SIZE 32
+#define BLOCK_SIZE 64
 #endif
 
 #define min(a,b) (((a)<(b))?(a):(b))
@@ -48,6 +48,7 @@ void do_block_fast (int lda, int M, int N, int K, double* A, double* B, double* 
     static double a[BLOCK_SIZE*BLOCK_SIZE] __attribute__ ((aligned (32)));
 //    static double a1, a2, a3, a4, b1, b2, b3, b4, c1, c2, c3, c4;
     static double temp[4] __attribute__ ((aligned (32))) = {0, 0, 0, 0};
+
     static __m256d vec1A;
     static __m256d vec1B;
     static __m256d vec1C;
@@ -76,22 +77,22 @@ void do_block_fast (int lda, int M, int N, int K, double* A, double* B, double* 
             a[j+i*BLOCK_SIZE] = A[i+j*lda];
 
 /* For each row i of A */
-    for (int i = 0; i < M; i++)
+    for (int i = 0; i < M; i+=2)
 /* For each column j of B */
-        for (int j = 0; j < N; j++)
+        for (int j = 0; j < N; j+=2)
         {
 /* Compute C(i,j) */
-            double cij = C[i+j*lda];
-//            double cijA = C[i+j*lda];
-//            double cijB = C[(i+1)+j*lda];
-//            double cijC = C[i+(j+1)*lda];
-//            double cijD = C[(i+1)+(j+1)*lda];
+//            double cij = C[i+j*lda];
+            double cijA = C[i+j*lda];
+            double cijB = C[(i+1)+j*lda];
+            double cijC = C[i+(j+1)*lda];
+            double cijD = C[(i+1)+(j+1)*lda];
 
 
-            for (int k = 0; k < K; k+=8){
+            for (int k = 0; k < K; k+=2){
 //                cij += A[i+k*lda] * B[k+j*lda];
 //                cij += A[i+1+k+1*lda] * B[k+1+j+1*lda];
-
+//
 //                cijA += a[i+k*BLOCK_SIZE] * B[k+j*lda];
 //                cijA += a[i+(k+1)*BLOCK_SIZE] * B[(k+1)+j*lda];
 //
@@ -103,23 +104,6 @@ void do_block_fast (int lda, int M, int N, int K, double* A, double* B, double* 
 //
 //                cijD += a[(i+1)+k*BLOCK_SIZE] * B[k+(j+1)*lda];
 //                cijD += a[(i+1)+(k+1)*BLOCK_SIZE] * B[(k+1)+(j+1)*lda];
-//                vec1B =_mm256_load_pd (&temp[0]);
-//
-//
-//                vecA1 = _mm_load_pd (&a[k+i*BLOCK_SIZE]);
-//                vecA2 = _mm_load_pd (&a[(k+2)+i*BLOCK_SIZE]);
-//
-//                vecB1 = _mm_loadu_pd (&B[k+j*lda]);
-//                vecB2 = _mm_loadu_pd (&B[(k+2)+j*lda]);
-//
-//                vecC1 = _mm_mul_pd(vecA1, vecB1);
-//                vecC2 = _mm_mul_pd(vecA2, vecB2);
-//
-//                vecCtmp = _mm_add_pd(vecC1, vecC2);
-//                _mm_storeu_pd(&temp[0], vecCtmp);
-//
-//                cij += temp[0];
-//                cij += temp[1];
 
                 vec1A = _mm256_load_pd (&a[k+i*BLOCK_SIZE]);
                 vec1B = _mm256_loadu_pd (&B[k+j*lda]);
