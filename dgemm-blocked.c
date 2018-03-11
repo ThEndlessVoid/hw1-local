@@ -102,7 +102,7 @@ void do_block_fast (int lda, int M, int N, int K, double* A, double* B, double* 
 //
 //                cijD += a[(i+1)+k*BLOCK_SIZE] * B[k+(j+1)*lda];
 //                cijD += a[(i+1)+(k+1)*BLOCK_SIZE] * B[(k+1)+(j+1)*lda];
-                __m256d vec1A =_mm256_load_pd (&a[k+i*BLOCK_SIZE]);
+//                __m256d vec1A =_mm256_load_pd (&a[k+i*BLOCK_SIZE]);
 
 
                 vecA1 = _mm_load_pd (&a[k+i*BLOCK_SIZE]);
