@@ -15,7 +15,7 @@
 
  */
 #include <emmintrin.h>
-#include "immintrin.h"
+#include <immintrin.h>
 
 const char* dgemm_desc = "Simple blocked dgemm.";
 #if !defined(BLOCK_SIZE)
