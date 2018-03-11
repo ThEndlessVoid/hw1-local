@@ -77,19 +77,19 @@ void do_block_fast (int lda, int M, int N, int K, double* A, double* B, double* 
             a[j+i*BLOCK_SIZE] = A[i+j*lda];
 
 /* For each row i of A */
-    for (int i = 0; i < M; i+=2)
+    for (int i = 0; i < M; i++)
 /* For each column j of B */
-        for (int j = 0; j < N; j+=2)
+        for (int j = 0; j < N; j++)
         {
 /* Compute C(i,j) */
-//            double cij = C[i+j*lda];
-            double cijA = C[i+j*lda];
-            double cijB = C[(i+1)+j*lda];
-            double cijC = C[i+(j+1)*lda];
-            double cijD = C[(i+1)+(j+1)*lda];
+            double cij = C[i+j*lda];
+//            double cijA = C[i+j*lda];
+//            double cijB = C[(i+1)+j*lda];
+//            double cijC = C[i+(j+1)*lda];
+//            double cijD = C[(i+1)+(j+1)*lda];
 
 
-            for (int k = 0; k < K; k+=2){
+            for (int k = 0; k < K; k+=4){
 //                cij += A[i+k*lda] * B[k+j*lda];
 //                cij += A[i+1+k+1*lda] * B[k+1+j+1*lda];
 //
