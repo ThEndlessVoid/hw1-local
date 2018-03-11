@@ -82,28 +82,34 @@ void do_block_fast (int lda, int M, int N, int K, double* A, double* B, double* 
         for (int j = 0; j < N; j+=2)
         {
 /* Compute C(i,j) */
-//            double cij = C[i+j*lda];
-            double cijA = C[i+j*lda];
-            double cijB = C[(i+1)+j*lda];
-            double cijC = C[i+(j+1)*lda];
-            double cijD = C[(i+1)+(j+1)*lda];
+            double cij = C[i+j*lda];
+//            double cijA = C[i+j*lda];
+//            double cijB = C[(i+1)+j*lda];
+//            double cijC = C[i+(j+1)*lda];
+//            double cijD = C[(i+1)+(j+1)*lda];
 
 
             for (int k = 0; k < K; k+=2){
 //                cij += A[i+k*lda] * B[k+j*lda];
 //                cij += A[i+1+k+1*lda] * B[k+1+j+1*lda];
 
-                cijA += a[i+k*BLOCK_SIZE] * B[k+j*lda];
-                cijA += a[i+(k+1)*BLOCK_SIZE] * B[(k+1)+j*lda];
+//                cijA += a[i+k*BLOCK_SIZE] * B[k+j*lda];
+//                cijA += a[i+(k+1)*BLOCK_SIZE] * B[(k+1)+j*lda];
+//
+//                cijB += a[(i+1)+k*BLOCK_SIZE] * B[k+j*lda];
+//                cijB += a[(i+1)+(k+1)*BLOCK_SIZE] * B[(k+1)+j*lda];
+//
+//                cijC += a[i+1+k*BLOCK_SIZE] * B[k+(j+1)*lda];
+//                cijC += a[i+(k+1)*BLOCK_SIZE] * B[(k+1)+(j+1)*lda];
+//
+//                cijD += a[(i+1)+k*BLOCK_SIZE] * B[k+(j+1)*lda];
+//                cijD += a[(i+1)+(k+1)*BLOCK_SIZE] * B[(k+1)+(j+1)*lda];
 
-                cijB += a[(i+1)+k*BLOCK_SIZE] * B[k+j*lda];
-                cijB += a[(i+1)+(k+1)*BLOCK_SIZE] * B[(k+1)+j*lda];
 
-                cijC += a[i+1+k*BLOCK_SIZE] * B[k+(j+1)*lda];
-                cijC += a[i+(k+1)*BLOCK_SIZE] * B[(k+1)+(j+1)*lda];
-
-                cijD += a[(i+1)+k*BLOCK_SIZE] * B[k+(j+1)*lda];
-                cijD += a[(i+1)+(k+1)*BLOCK_SIZE] * B[(k+1)+(j+1)*lda];
+                cij += a[i+k*lda] * B[k+j*lda];
+                cij += a[i+1+k*lda] * B[k+j*lda];
+                cij += a[i+2+k*lda] * B[k+j*lda];
+                cij += a[i+3+k*lda] * B[k+j*lda];
 
 //                vec1A = _mm256_load_pd (&a[k+i*BLOCK_SIZE]);
 //                vec1B = _mm256_loadu_pd (&B[k+j*lda]);
@@ -119,11 +125,14 @@ void do_block_fast (int lda, int M, int N, int K, double* A, double* B, double* 
 //                cij += temp[3];
 
             }
-            C[i+j*lda] = cijA;
-            C[(i+1)+j*lda] = cijB;
-            C[i+(j+1)*lda] = cijC;
-            C[(i+1)+(j+1)*lda] = cijD;
-//            C[i+j*lda] = cij;
+//            C[i+j*lda] = cijA;
+//            C[i+j*lda] = cijB;
+//            C[i+j*lda] = cijC;
+//            C[i+j*lda] = cijD;
+//            C[(i+1)+j*lda] = cijB;
+//            C[i+(j+1)*lda] = cijC;
+//            C[(i+1)+(j+1)*lda] = cijD;
+            C[i+j*lda] = cij;
         }
 }
 /* This routine performs a dgemm operation
