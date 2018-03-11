@@ -48,6 +48,7 @@ void do_block_fast (int lda, int M, int N, int K, double* A, double* B, double* 
     static double a[BLOCK_SIZE*BLOCK_SIZE] __attribute__ ((aligned (32)));
 //    static double a1, a2, a3, a4, b1, b2, b3, b4, c1, c2, c3, c4;
     static double temp[4] __attribute__ ((aligned (32))) = {0, 0, 0, 0};
+    __m256d vec1A;
     __m256d vec1B;
     __m256d vec1C;
     __m256d vec2A;
